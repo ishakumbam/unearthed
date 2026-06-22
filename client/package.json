@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run dev --prefix web103_unit3_lab-main",
     "build": "vite build",
     "preview": "vite preview"
   },

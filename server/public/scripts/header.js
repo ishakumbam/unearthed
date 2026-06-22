@@ -26,7 +26,15 @@ headerButton.addEventListener('click', function handleClick(event) {
 })
 
 
+const addButton = document.createElement('button')
+addButton.textContent = '+ Add Gift'
+addButton.className = 'addBtn'
+addButton.addEventListener('click', function () {
+  window.location = '/new'
+})
+
 headerRight.appendChild(headerButton)
+headerRight.appendChild(addButton)
 
 headerContainer.appendChild(headerLeft)
 headerContainer.appendChild(headerRight)

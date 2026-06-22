@@ -13,7 +13,10 @@ const GiftDetails = ({data}) => {
             if (!id) return
             try {
                 const response = await fetch(`/gifts/${id}`)
-                if (!response.ok) return
+                if (!response.ok) {
+                    console.error('API error fetching gift by id:', response.status, await response.text())
+                    return
+                }
                 const result = await response.json()
                 setGift(result)
             } catch (err) {

@@ -3,6 +3,10 @@ const renderGift = async () => {
     const requestedID = parseInt(params.get('id') || window.location.pathname.split('/').pop(), 10)
 
     const response = await fetch('/gifts')
+    if (!response.ok) {
+        console.error('API error fetching gifts:', response.status, await response.text())
+        return
+    }
     const data = await response.json()
 
     const giftContent = document.getElementById('gift-content')

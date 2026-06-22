@@ -5,6 +5,8 @@ import Gifts from './pages/Gifts'
 import GiftDetails from './pages/GiftDetails'
 import PageNotFound from './pages/PageNotFound'
 import { Link } from 'react-router-dom'
+import CreateGift from './pages/CreateGift'
+import EditGift from './pages/EditGift'
 
 
 const App = () => {
@@ -14,7 +16,11 @@ const App = () => {
 
   useEffect(() => {
     const fetchGifts = async () => {
-      const response = await fetch('/gifts')
+      const response = await fetch('http://localhost:3001/gifts')
+      if (!response.ok) {
+        console.error('API error fetching gifts:', response.status, await response.text())
+        return
+      }
       const data = await response.json()
       setGifts(data)
     }
@@ -39,7 +45,16 @@ const App = () => {
     {
       path:"/*",
       element: <PageNotFound />
+    },
+    {
+  path: '/new',
+  element: <CreateGift />
+    },
+    {
+      path: '/edit/:id',
+      element: <EditGift />
     }
+
   ]);
 
   
@@ -55,6 +70,7 @@ const App = () => {
           </div>
           <div className="header-right">
             <Link to="/"><button className="homeBtn">Home</button></Link>
+            <Link to='/new'><button className='addBtn'>+ Add Gift</button></Link>
           </div>
         </div>
       </header>

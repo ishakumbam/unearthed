@@ -1,5 +1,6 @@
 import { pool } from './database.js'
 import './dotenv.js'
+import pg from 'pg'
 import giftData from '../data/gifts.js'
 
 const createGiftsTable = async () => {
@@ -23,6 +24,25 @@ const createGiftsTable = async () => {
         console.log('🎉 gifts table created successfully')
     } catch (err) {
         console.error('⚠️ error creating gifts table', err)
+        // If the error indicates SSL is required, retry with an SSL-enabled client
+        if (err && String(err.message).includes('SSL')) {
+            try {
+                const fallbackPool = new pg.Pool({
+                    user: process.env.PGUSER,
+                    password: process.env.PGPASSWORD,
+                    host: process.env.PGHOST,
+                    port: process.env.PGPORT,
+                    database: process.env.PGDATABASE,
+                    ssl: { rejectUnauthorized: false }
+                })
+                await fallbackPool.query(createTableQuery)
+                console.log('🎉 gifts table created successfully (with SSL fallback)')
+                await fallbackPool.end()
+                return
+            } catch (e) {
+                console.error('⚠️ SSL fallback failed', e)
+            }
+        }
     }
 }
 
@@ -44,9 +64,28 @@ const seedGiftsTable = async () => {
             gift.submittedOn
         ]
 
-        pool.query(insertQuery, values, (err, res) => {
+        pool.query(insertQuery, values, async (err, res) => {
             if (err) {
                 console.error('⚠️ error inserting gift', err)
+                // try SSL fallback for insert if SSL is required
+                if (err && String(err.message).includes('SSL')) {
+                    try {
+                        const fallbackPool = new pg.Pool({
+                            user: process.env.PGUSER,
+                            password: process.env.PGPASSWORD,
+                            host: process.env.PGHOST,
+                            port: process.env.PGPORT,
+                            database: process.env.PGDATABASE,
+                            ssl: { rejectUnauthorized: false }
+                        })
+                        await fallbackPool.query(insertQuery, values)
+                        console.log(`✅ ${gift.name} added successfully (with SSL fallback)`)
+                        await fallbackPool.end()
+                        return
+                    } catch (e) {
+                        console.error('⚠️ SSL fallback insert failed', e)
+                    }
+                }
                 return
             }
 
